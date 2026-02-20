@@ -1,3 +1,5 @@
+import '../styles/resultcard.css'
+
 export default function ResultCard({ result }) {
   return (
     <div style={{
@@ -11,7 +13,7 @@ export default function ResultCard({ result }) {
           ? "#fff4cc"
           : "#ddffdd"
     }}>
-      <h2>Crash Score: {result.crash_score}</h2>
+      <h2 className='heading'>Crash Score: {result.crash_score}</h2>
       <h3>{result.risk_level}</h3>
 
       {result.predicted_zero_cash_date && (

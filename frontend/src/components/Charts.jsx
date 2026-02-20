@@ -5,6 +5,7 @@ import {
 } from "recharts";
 
 export default function Charts({ data }) {
+  
   return (
     <div style={{ padding: 40 }}>
       <h2>Revenue vs Expenses</h2>
@@ -31,4 +32,5 @@ export default function Charts({ data }) {
       </ResponsiveContainer>
     </div>
   );
+
 }

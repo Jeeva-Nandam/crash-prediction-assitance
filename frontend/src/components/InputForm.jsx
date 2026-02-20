@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import '../styles/inputform.css'
 
 export default function InputForm({ onResult }) {
   const [months, setMonths] = useState(0);
@@ -33,7 +34,7 @@ export default function InputForm({ onResult }) {
   };
 
   return (
-    <div style={{ padding: 40 }}>
+    <div style={{ padding: 40 }} className="input-container">
       <h2>Enter Financial Data</h2>
 
       <input
@@ -49,7 +50,7 @@ export default function InputForm({ onResult }) {
 
             <input
               type="number"
-              placeholder="Revenue"
+              placeholder={`Enter month ${i + 1} Revenue`}
               value={revenue[i]}
               onChange={(e) => {
                 const copy = [...revenue];
@@ -60,7 +61,7 @@ export default function InputForm({ onResult }) {
 
             <input
               type="number"
-              placeholder="Expenses"
+              placeholder={`Enter month ${i + 1} Expenses`}
               value={expenses[i]}
               onChange={(e) => {
                 const copy = [...expenses];
@@ -71,7 +72,7 @@ export default function InputForm({ onResult }) {
 
             <input
               type="number"
-              placeholder="Churn"
+              placeholder={`Enter month ${i + 1} Churn`}
               value={churn[i]}
               onChange={(e) => {
                 const copy = [...churn];
