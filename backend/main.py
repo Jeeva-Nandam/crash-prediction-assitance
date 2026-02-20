@@ -166,6 +166,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from datetime import datetime, timedelta
 
+
+import pandas as pd
+from fastapi import UploadFile, File, Form
+from fastapi.responses import JSONResponse
+
 app = FastAPI()
 
 # -----------------------------
@@ -179,6 +184,145 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# -----------------------------
+# CSV Validation Function
+# -----------------------------
+
+REQUIRED_COLUMNS = ["month", "revenue", "expenses", "churn_rate"]
+
+# def validate_csv(df):
+#     errors = []
+
+#     # Missing columns
+#     for col in REQUIRED_COLUMNS:
+#         if col not in df.columns:
+#             errors.append(f"Missing required column: {col}")
+
+#     # Extra columns
+#     for col in df.columns:
+#         if col not in REQUIRED_COLUMNS:
+#             errors.append(f"Unexpected column: {col}")
+
+#     # Check numeric values
+#     for col in ["revenue", "expenses", "churn_rate"]:
+#         if col in df.columns:
+#             if not pd.api.types.is_numeric_dtype(df[col]):
+#                 errors.append(f"Column {col} must contain numeric values")
+
+#     return errors
+
+def validate_csv(df):
+    errors = []
+
+    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+
+    if missing:
+        errors.append(f"Missing required columns: {', '.join(missing)}")
+
+    for col in ["revenue", "expenses", "churn_rate"]:
+        if col in df.columns:
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                errors.append(f"Column {col} must contain numeric values")
+
+    return errors
+
+
+@app.post("/upload-csv")
+async def upload_csv(
+    file: UploadFile = File(...),
+    cash_in_hand: float = Form(...)
+):
+
+    try:
+        df = pd.read_csv(file.file)
+
+        # Validate
+        errors = validate_csv(df)
+
+        if errors:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "error",
+                    "issues": errors
+                }
+            )
+
+        # Extract data
+        revenue = df["revenue"].tolist()
+        expenses = df["expenses"].tolist()
+        churn = df["churn_rate"].tolist()
+
+        # Use existing logic
+        rev_score = revenue_risk(revenue)
+        exp_score = expense_risk(revenue, expenses)
+        churn_score = churn_risk(churn)
+        runway_score = runway_risk(cash_in_hand, revenue, expenses)
+
+        final_score = round(
+            rev_score * 0.35 +
+            churn_score * 0.25 +
+            exp_score * 0.20 +
+            runway_score * 0.20
+        )
+
+        signals = {
+            "revenue_risk": rev_score,
+            "expense_risk": exp_score,
+            "churn_risk": churn_score,
+            "runway_risk": runway_score
+        }
+
+        crash_date, crash_reason = predict_zero_cash_date(
+            cash_in_hand,
+            revenue,
+            expenses
+        )
+
+        improvement = improvement_projection(
+            cash_in_hand,
+            revenue,
+            expenses
+        )
+
+        # return {
+        #     "status": "success",
+        #     "crash_score": final_score,
+        #     "risk_level": risk_label(final_score),
+        #     "predicted_zero_cash_date": crash_date,
+        #     "crash_reason": crash_reason,
+        #     "explanation": generate_explanation(signals),
+        #     "recommended_actions": decision_recommendations(signals),
+        #     "improvement_projection": improvement
+        # }
+
+        return {
+    "status": "success",
+    "crash_score": final_score,
+    "risk_level": risk_label(final_score),
+    "predicted_zero_cash_date": crash_date,
+    "crash_reason": crash_reason,
+    "explanation": generate_explanation(signals),
+    "recommended_actions": decision_recommendations(signals),
+    "improvement_projection": improvement,
+
+    # 🔥 ADD THIS FOR CHARTS
+    "months": df["month"].tolist(),
+    "revenue": revenue,
+    "expenses": expenses,
+    "churn_rate": churn
+}
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": str(e)
+            }
+        )
+
 
 # -----------------------------
 # Utility Functions
@@ -399,11 +543,25 @@ def analyze(data: CrashInput):
     )
 
     return {
-        "crash_score": final_score,
-        "risk_level": risk_label(final_score),
-        "predicted_zero_cash_date": crash_date,
-        "crash_reason": crash_reason,
-        "explanation": generate_explanation(signals),
-        "recommended_actions": decision_recommendations(signals),
-        "improvement_projection": improvement
+        # "crash_score": final_score,
+        # "risk_level": risk_label(final_score),
+        # "predicted_zero_cash_date": crash_date,
+        # "crash_reason": crash_reason,
+        # "explanation": generate_explanation(signals),
+        # "recommended_actions": decision_recommendations(signals),
+        # "improvement_projection": improvement
+
+            "crash_score": final_score,
+    "risk_level": risk_label(final_score),
+    "predicted_zero_cash_date": crash_date,
+    "crash_reason": crash_reason,
+    "explanation": generate_explanation(signals),
+    "recommended_actions": decision_recommendations(signals),
+    "improvement_projection": improvement,
+
+    # 👇 ADD THESE FOR CHARTS
+    "months": [f"M{i+1}" for i in range(len(data.revenue))],
+    "revenue": data.revenue,
+    "expenses": data.expenses,
+    "churn_rate": data.churn_rate
     }
