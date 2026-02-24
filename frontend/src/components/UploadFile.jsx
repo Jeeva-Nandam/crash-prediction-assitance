@@ -32,7 +32,7 @@ export default function UploadFile({ onResult }) {
         formData
       );
 
-      onResult(response.data);
+      onResult(response.data,  null);
     
 
     } catch (error) {
