@@ -23,4 +23,6 @@ git merge <branch-name>
 2. type - :wq
 3. press - Enter button
 
-
+# If push fails with “fetch first”:
+git pull origin main --rebase
+git push origin main

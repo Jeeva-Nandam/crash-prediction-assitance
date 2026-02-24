@@ -1,14 +1,20 @@
 from datetime import datetime, timedelta
 
-def revenue_risk_score(growth):
-    avg_growth = sum(growth) / len(growth) if growth else 0
+# def revenue_risk_score(growth):
+#     avg_growth = sum(growth) / len(growth) if growth else 0
+#     if avg_growth < -10:
+#         return 90
+#     elif -10 <= avg_growth <= 5:
+#         return 55
+#     else:
+#         return 20
+def revenue_risk_score(avg_growth):
     if avg_growth < -10:
         return 90
     elif -10 <= avg_growth <= 5:
         return 55
     else:
         return 20
-
 
 def expense_risk_score(rev_growth, exp_growth):
     avg_rev = sum(rev_growth) / len(rev_growth) if rev_growth else 0

@@ -13,16 +13,20 @@ router = APIRouter()
 
 @router.post("/analyze")
 def analyze(data: CrashInput):
-    rev_growth = revenue_growth_rate(data.revenue)
-    exp_growth = expense_growth_rate(data.expenses)
+    rev_trend_value, rev_label = revenue_trend(data.revenue)
+    exp_trend_value, exp_label = expense_trend(data.expenses)
 
-    net_flow = net_cash_flow(data.revenue, data.expenses)
+    # net_flow = net_cash_flow(data.revenue, data.expenses)
     avg_burn = burn_rate(data.revenue, data.expenses)
-    runway = runway_days(data.cash_in_hand, avg_burn)
+    runway_days, runway_status = runway_analysis(
+    data.cash_in_hand,
+    avg_burn
+)
 
-    rev_risk = revenue_risk_score(rev_growth)
-    exp_risk = expense_risk_score(rev_growth, exp_growth)
-    run_risk = runway_risk_score(runway)
+    
+    rev_risk = revenue_risk_score(rev_trend_value)
+    exp_risk = expense_risk_score([rev_trend_value], [exp_trend_value])
+    run_risk = runway_risk_score(runway_days)
     ch_risk = churn_risk_score(data.churn_rate)
 
     final_score = round((rev_risk + exp_risk + run_risk + ch_risk) / 4)
@@ -49,17 +53,33 @@ def analyze(data: CrashInput):
     return {
         "crash_score": final_score,
         "risk_level": risk_label(final_score),
+        "metrics": {
+            "revenue_trend": {
+                "percentage": rev_trend_value,
+                "status": rev_label
+            },
+            "expense_trend": {
+                "percentage": exp_trend_value,
+                "status": exp_label
+            },
+            "burn_rate": {
+                "amount_per_month": avg_burn
+            },
+            "runway": {
+            "days_remaining": runway_days,
+            "status": runway_status
+            }
+        },
+
         "predicted_zero_cash_date": crash_date,
         "crash_reason": crash_reason,
         "explanation": generate_explanation(signals),
         "recommended_actions": decision_recommendations(signals),
         "improvement_projection": improvement,
-        "revenue_growth_trend": rev_growth,
-        "expense_growth_trend": exp_growth,
-        "net_cash_flow": net_flow,
-        "burn_rate": avg_burn,
-        "runway_days": runway,
+
         "risk_sub_scores": signals,
+
+        # Chart Data
         "months": [f"M{i+1}" for i in range(len(data.revenue))],
         "revenue": data.revenue,
         "expenses": data.expenses,
