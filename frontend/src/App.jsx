@@ -45,7 +45,7 @@ const handleResult = (response, payload = null) => {
       <Header />
 
       <div style={{ display: "flex", gap: 10, padding: 20}} className="app-container">
-        <button onClick={() => {
+        {/* <button onClick={() => {
   setMode("manual");
   setResult(null);
   setChartData([]);
@@ -58,6 +58,28 @@ const handleResult = (response, payload = null) => {
   setResult(null);
   setChartData([]);
 }}>
+  Upload CSV
+</button> */}
+
+<button
+  className={mode === "manual" ? "active" : ""}
+  onClick={() => {
+    setMode("manual");
+    setResult(null);
+    setChartData([]);
+  }}
+>
+  Manual Entry
+</button>
+
+<button
+  className={mode === "upload" ? "active" : ""}
+  onClick={() => {
+    setMode("upload");
+    setResult(null);
+    setChartData([]);
+  }}
+>
   Upload CSV
 </button>
       </div>
