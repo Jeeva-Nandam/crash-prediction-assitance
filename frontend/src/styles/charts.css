@@ -43,3 +43,24 @@
     padding: 20px;
   }
 }
+
+.flex-box{
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.filter-section select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-weight: 500;
+}
