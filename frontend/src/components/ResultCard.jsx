@@ -131,6 +131,7 @@ export default function ResultCard({ result }) {
             ? "#fff4cc"
             : "#ddffdd"
       }}
+      
     >
       <h2 className='heading'>Crash Score: {result.crash_score}</h2>
       <h3>{result.risk_level}</h3>
