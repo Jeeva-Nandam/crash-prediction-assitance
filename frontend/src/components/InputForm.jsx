@@ -8,6 +8,7 @@ export default function InputForm({ onResult }) {
   const [expenses, setExpenses] = useState([]);
   const [churn, setChurn] = useState([]);
   const [cash, setCash] = useState("");
+  const [customers, setCustomers] = useState([]);
 
   const handleMonthChange = (value) => {
     const m = Number(value);
@@ -15,6 +16,7 @@ export default function InputForm({ onResult }) {
     setRevenue(Array(m).fill(""));
     setExpenses(Array(m).fill(""));
     setChurn(Array(m).fill(""));
+    setCustomers(Array(m).fill(""));
   };
 
   const handleAnalyze = async () => {
@@ -22,6 +24,7 @@ export default function InputForm({ onResult }) {
       revenue: revenue.map(Number),
       expenses: expenses.map(Number),
       churn_rate: churn.map(Number),
+      customers: customers.map(Number), 
       cash_in_hand: Number(cash)
     };
 
@@ -78,6 +81,17 @@ export default function InputForm({ onResult }) {
                 const copy = [...churn];
                 copy[i] = e.target.value;
                 setChurn(copy);
+              }}
+            />
+
+            <input
+              type="number"
+              placeholder={`Enter month ${i + 1} Customers`}
+              value={customers[i]}
+              onChange={(e) => {
+                const copy = [...customers];
+                copy[i] = e.target.value;
+                setCustomers(copy);
               }}
             />
           </div>
